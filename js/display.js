@@ -11,14 +11,24 @@ var scene, camera, renderer, particleSystem, pMaterial, sceneSources,
                 new THREE.Vector3(-100, -100, -100)]];
 var params = {
     damping: 0.001,
-    source: 1,
+    source: 0,
     timestep: 0.01,
     GC : 5000000,
     threshold : 25
 };
+$(function() {
+    var s = parseInt(getURLParameter("source"));
+    if (s && s >= 0 && s < sources.length) {
+        params.source = s;
+    }
+    init();
+    animate();
+});
 
-init();
-animate();
+function getURLParameter(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+}
+
 
 // Sets up the scene.
 function init() {
