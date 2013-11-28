@@ -1,5 +1,5 @@
 var scene, camera, renderer, particleSystem, pMaterial, sceneSources,
-    particleCount = 1000,
+    particleCount = 10000,
     sources = [[new THREE.Vector3(100, 100, 100),
                new THREE.Vector3(-100, -100, -100),
                new THREE.Vector3(0,100,100)],
@@ -79,12 +79,14 @@ function init() {
                           Math.acos(rs())];
 
         var radial = spherical_to_radial(spherical);
-        var particle = new THREE.Vector3(radial[0], radial[1], radial[2]);
+        var particle = new THREE.Vector3(rs() * 100,
+                                         rs() * 100,
+                                         rs() * 100);
 
         gravityAttributes.velocity.value[p] = new THREE.Vector3(
-                rs() * 30 ,
-                rs() * 30 ,
-                rs() * 30 );
+                rs() * 20 ,
+                rs() * 20 ,
+                rs() * 20 );
 
         // gravityAttributes.pos.value[p] = new THREE.Vector3(
         //     radial[0],
