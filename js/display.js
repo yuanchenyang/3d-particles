@@ -16,11 +16,15 @@ var params = {
     GC : 5000000,
     threshold : 25
 };
+
+var gl;
+
 $(function() {
     var s = parseInt(getURLParameter("source"));
     if (s && s >= 0 && s < sources.length) {
         params.source = s;
     }
+
     init();
     animate();
 });
@@ -29,6 +33,42 @@ function getURLParameter(name) {
     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
 }
 
+
+
+function getShader(gl, id) {
+    var shaderScript = document.getElementById(id);
+    if (!shaderScript) {
+        return null;
+    }
+
+    var str = "";
+    var k = shaderScript.firstChild;
+    while (k) {
+        if (k.nodeType == 3) {
+            str += k.textContent;
+        }
+        k = k.nextSibling;
+    }
+
+    var shader;
+    if (shaderScript.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    } else if (shaderScript.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    } else {
+        return null;
+    }
+
+    gl.shaderSource(shader, str);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(shader));
+        return null;
+    }
+
+    return shader;
+}
 
 // Sets up the scene.
 function init() {
@@ -87,11 +127,6 @@ function init() {
                 rs() * 20 ,
                 rs() * 20 ,
                 rs() * 20 );
-
-        // gravityAttributes.pos.value[p] = new THREE.Vector3(
-        //     radial[0],
-        //     radial[1],
-        //     radial[2]);
 
         // add it to the geometry
         particles.vertices.push(particle);
