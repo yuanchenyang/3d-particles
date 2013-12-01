@@ -1,5 +1,5 @@
 var scene, camera, renderer, particleSystem, pMaterial, sceneSources,
-    particleCount = 10000,
+    particleCount = 2000,
     sources = [[new THREE.Vector3(100, 100, 100),
                new THREE.Vector3(-100, -100, -100),
                new THREE.Vector3(0,100,100)],
@@ -10,11 +10,11 @@ var scene, camera, renderer, particleSystem, pMaterial, sceneSources,
                [new THREE.Vector3(100, 100, 100),
                 new THREE.Vector3(-100, -100, -100)]];
 var params = {
-    damping: 0.001,
+    damping: 0.0,
     source: 0,
     timestep: 0.01,
     GC : 5000000,
-    threshold : 25
+    threshold : 10
 };
 
 var gl;
@@ -154,7 +154,7 @@ function init() {
     add_stats();
 
     var gui = new DAT.GUI({height : 4 * 32 - 1});
-    gui.add(params, 'damping').min(0.0001).max(0.1).step(0.0001);
+    gui.add(params, 'damping').min(0.0).max(0.01).step(0.00001);
     gui.add(params, 'threshold').min(1).max(50).step(1);
     gui.add(params, 'timestep').min(0.0005).max(0.05).step(0.0005);
     gui.add(params, 'GC').min(100000).max(10000000).step(100000);
@@ -224,20 +224,9 @@ function animate() {
     while(p--) {
 
         // get the particle
-        var particle = particleSystem.geometry.vertices[p];
-        var position = particle;
-
+        var position = particleSystem.geometry.vertices[p];
         var velocity = pMaterial.attributes.velocity.value[p];
-        var force = new THREE.Vector3(0,0,0);
-        var source = sources[params.source];
-        for (var i=0; i < source.length; i++) {
-            force.add(compute_force(source[i], position));
-        }
-        force.multiplyScalar(params.timestep);
-        velocity.add(force);
-        velocity.multiplyScalar(1-params.damping);
-        particle.add(velocity.clone().multiplyScalar(params.timestep));
-
+        runge_kutta(position, velocity);
     }
     particleSystem.geometry.verticesNeedUpdate = true;
 
@@ -245,9 +234,39 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+function runge_kutta(position, velocity) {
+    function addNew(a, b, h) {
+        return a.clone().add(b.clone().multiplyScalar(h));
+    }
+    function combine(k1, k2, k3, k4) {
+        var result = new THREE.Vector3(0,0,0);
+        result.add(k2).add(k3).multiplyScalar(2);
+        result.add(k1).add(k4).multiplyScalar(h / 6);
+        return result;
+    }
+    var h = params.timestep;
+    var k1v = total_force(position);
+    var k1r = velocity.clone();
+    var k2r = addNew(velocity, k1v, h / 2);
+    var k2v = total_force(addNew(position, k1r, h / 2));
+    var k3r = addNew(velocity, k2v, h / 2);
+    var k3v = total_force(addNew(position, k2r, h / 2));
+    var k4r = addNew(velocity, k3v, h);
+    var k4v = total_force(addNew(position, k3r, h));
+    position.add(combine(k1r, k2r, k3r, k4r));
+    velocity.add(combine(k1v, k2v, k3v, k4v)).multiplyScalar(1-params.damping);
+}
 
+function total_force(position) {
+    var force = new THREE.Vector3(0,0,0);
+    var source = sources[params.source];
+    for (var i=0; i < source.length; i++) {
+        force.add(get_force(source[i], position));
+    }
+    return force;
+}
 
-function compute_force(source, position) {
+function get_force(source, position) {
     var dr = position.clone();
     dr.sub(source);
     var length = dr.length();
