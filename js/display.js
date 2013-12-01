@@ -10,7 +10,7 @@ var scene, camera, renderer, particleSystem, pMaterial, sceneSources,
                [new THREE.Vector3(100, 100, 100),
                 new THREE.Vector3(-100, -100, -100)]];
 var params = {
-    damping: 0.0,
+    damping: 0.002,
     source: 0,
     timestep: 0.01,
     GC : 5000000,
@@ -112,6 +112,9 @@ function init() {
         pos: { type: 'v3', value: [] }
     };
 
+    var startx = rs() * 200,
+        starty = rs() * 200,
+        startz = rs() * 200;
 
     for(var p = 0; p < particleCount; p++) {
         var spherical = [ Math.abs(rs() + rs() + rs() + rs()) * 50,
@@ -119,14 +122,14 @@ function init() {
                           Math.acos(rs())];
 
         var radial = spherical_to_radial(spherical);
-        var particle = new THREE.Vector3(rs() * 100,
-                                         rs() * 100,
-                                         rs() * 100);
+        var particle = new THREE.Vector3(startx + rs() * 10,
+                                         starty + rs() * 10,
+                                         startz + rs() * 10);
 
         gravityAttributes.velocity.value[p] = new THREE.Vector3(
-                rs() * 20 ,
-                rs() * 20 ,
-                rs() * 20 );
+                rs() * 10 ,
+                rs() * 10 ,
+                rs() * 10 );
 
         // add it to the geometry
         particles.vertices.push(particle);
@@ -155,7 +158,7 @@ function init() {
 
     var gui = new DAT.GUI({height : 4 * 32 - 1});
     gui.add(params, 'damping').min(0.0).max(0.01).step(0.00001);
-    gui.add(params, 'threshold').min(1).max(50).step(1);
+    gui.add(params, 'threshold').min(0).max(50).step(1);
     gui.add(params, 'timestep').min(0.0005).max(0.05).step(0.0005);
     gui.add(params, 'GC').min(100000).max(10000000).step(100000);
 }
