@@ -10,11 +10,11 @@ var scene, camera, renderer, particleSystem, pMaterial, sceneSources,
                [new THREE.Vector3(100, 100, 100),
                 new THREE.Vector3(-100, -100, -100)]];
 var params = {
-    damping: 0.002,
+    damping: 0.0005,
     source: 0,
     timestep: 0.01,
     GC : 5000000,
-    threshold : 10
+    threshold : 20
 };
 
 var gl;
