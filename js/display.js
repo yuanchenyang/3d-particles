@@ -17,6 +17,7 @@ var params = {
     threshold : 20
 };
 
+
 var gl;
 
 $(function() {
@@ -72,6 +73,10 @@ function getShader(gl, id) {
 
 // Sets up the scene.
 function init() {
+
+    if (!Detector.webgl) {
+        window.location = "http://get.webgl.org";
+    }
 
     // Create the scene and set the scene size.
     scene = new THREE.Scene();
@@ -232,6 +237,7 @@ function animate() {
         runge_kutta(position, velocity);
     }
     particleSystem.geometry.verticesNeedUpdate = true;
+    pMaterial.attributes.velocity.needsUpdate = true;
 
     renderer.render( scene, camera );
     requestAnimationFrame(animate);

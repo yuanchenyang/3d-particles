@@ -7,14 +7,21 @@
 <script type="x-shader/x-vertex" id="gravityVertexShader">
   attribute vec3 velocity;
   attribute vec3 pos;
+  varying vec3 vvelocity;
   void main() {
+    vvelocity = velocity;
     gl_PointSize = 1.0;
     gl_Position = projectionMatrix * modelViewMatrix * vec4( position , 1.0 );
   }
 </script>
 <script type="x-shader/x-fragment" id="gravityFragmentShader">
+  varying vec3 vvelocity;
   void main() {
-    gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 );
+    float l = 1.0 - (length(vvelocity)) / 400.0;
+    if (l < 0.0) {
+      l = 0.0;
+    }
+    gl_FragColor = vec4( 1.0, l, l, 1.0 );
   }
 </script>
 <script>
@@ -37,6 +44,7 @@
 <script src="/js/lib/RenderPass.js"></script>
 <script src="/js/lib/ShaderPass.js"></script>
 <script src="/js/lib/CopyShader.js"></script>
+<script src="/js/lib/Detector.js"></script>
 <script src="/js/lib/jquery-2.0.3.min.js"></script>
 <script src="/js/lib/DAT.GUI.js"></script>
 <script src="/js/display.js"></script>
