@@ -132,9 +132,9 @@ function init() {
                                          startz + rs() * 10);
 
         gravityAttributes.velocity.value[p] = new THREE.Vector3(
-                rs() * 10 ,
-                rs() * 10 ,
-                rs() * 10 );
+                rs() * 10,
+                rs() * 10,
+                rs() * 10);
 
         // add it to the geometry
         particles.vertices.push(particle);
